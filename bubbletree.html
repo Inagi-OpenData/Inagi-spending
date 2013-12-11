@@ -5,6 +5,22 @@ title: 使途別予算額
 
 <div class="row">
   <script type="text/javascript">
+
+  function createAggregator(year, dataLoaded){
+    // call openspending api for data
+    new OpenSpending.Aggregator({
+      apiUrl: 'http://openspending.org/api',
+      //Use static file instead of api
+      //localApiCache: 'aggregate.json',
+      dataset: OpenSpending.identifier,
+      rootNodeLabel: 'Total',
+      drilldowns: ['Category', 'Subcategory'],
+      cuts: ['year:' + year],
+      breakdown: 'Subcategory',
+      callback: dataLoaded
+    });
+  }
+
   yepnope.errorTimeout = 1000;
   yepnope({
   load: [
@@ -48,23 +64,26 @@ title: 使途別予算額
       };
 
       // call openspending api for data
-      new OpenSpending.Aggregator({
-        apiUrl: 'http://openspending.org/api',
-        //Use static file instead of api
-        //localApiCache: 'aggregate.json',
-        dataset: OpenSpending.identifier,
-        rootNodeLabel: 'Total',
-        drilldowns: ['Category', 'Subcategory'],
-        cuts: ['year:' + OpenSpending.year],
-        breakdown: 'Subcategory',
-        callback: dataLoaded
+      createAggregator(OpenSpending.year, dataLoaded);
+
+      // 年変更イベント
+      $("#year").change(function(){
+        $("#bubbletree").empty();
+        createAggregator(this.value, dataLoaded);
       });
     });
   }
   });
 
   </script>
-
+  <div>
+    <h2 style="width:240px;display:inline-block;vertical-align:top;">みてみたい年度は？</h2>
+    <select id="year">
+      <option value="2013" selected="selected">平成 25 年度</option>
+      <option value="2012">平成 24 年度</option>
+      <option value="2011">平成 23 年度</option>
+    </select>
+  </div>
   <div class="bubbletree-wrapper">
     <div id="bubbletree" class="bubbletree"></div>
   </div>
